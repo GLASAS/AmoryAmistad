@@ -22,7 +22,6 @@
             <p class="text-xs text-slate-500 mt-1">Ingresa tus datos para generar tu código y reclamar tu obsequio.</p>
         </div>
 
-        <!-- Alerta de validación en pantalla -->
         <div id="self-alert-box" class="hidden p-3 rounded-xl mb-4 text-sm font-medium"></div>
 
         <form id="self-reg-form" onsubmit="handleSelfRegister(event)" class="space-y-4">
@@ -61,7 +60,7 @@
                 </div>
             </div>
 
-            <button type="submit" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-bold shadow-sm transition">
+            <button type="submit" id="submit-btn" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-bold shadow-sm transition">
                 <i class="fa-solid fa-qrcode mr-2"></i> Generar Mi Código de Reclamo
             </button>
         </form>
@@ -91,9 +90,6 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getDatabase, ref, push, get, child } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-        // ========================================================
-        // REEMPLAZA ESTE BLOQUE CON TUS CREDENCIALES REALES DE FIREBASE
-        // ========================================================
         const firebaseConfig = {
             apiKey: "TU_API_KEY",
             authDomain: "TU_DOMINIO.firebaseapp.com",
@@ -115,47 +111,61 @@
             const idVal = document.getElementById('self-id').value.trim();
             const nameVal = document.getElementById('self-name').value.trim();
             const phoneVal = document.getElementById('self-phone').value.trim();
+            const btn = document.getElementById('submit-btn');
 
-            const dbRef = ref(db);
-            
-            // Validar en Firebase si ya se entregó el souvenir a esta cédula
-            const deliveredSnap = await get(child(dbRef, 'delivered'));
-            if (deliveredSnap.exists()) {
-                const deliveredList = Object.values(deliveredSnap.val());
-                if (deliveredList.some(i => i.id === idVal)) {
-                    showSelfAlert('¡RESTRICCIÓN! Esta cédula ya recibió su obsequio y no puede registrarse nuevamente.', 'error');
-                    return;
+            btn.disabled = true;
+            btn.textContent = "Verificando...";
+
+            try {
+                const dbRef = ref(db);
+                
+                // Validar entregados
+                const deliveredSnap = await get(child(dbRef, 'delivered'));
+                if (deliveredSnap.exists()) {
+                    const deliveredList = Object.values(deliveredSnap.val());
+                    if (deliveredList.some(i => i.id === idVal)) {
+                        showSelfAlert('¡RESTRICCIÓN! Esta cédula ya recibió su obsequio.', 'error');
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="fa-solid fa-qrcode mr-2"></i> Generar Mi Código de Reclamo';
+                        return;
+                    }
                 }
-            }
 
-            // Validar en Firebase si ya está en la fila de pre-registrados pendientes
-            const pendingSnap = await get(child(dbRef, 'pending'));
-            if (pendingSnap.exists()) {
-                const pendingList = Object.values(pendingSnap.val());
-                if (pendingList.some(i => i.id === idVal)) {
-                    showSelfAlert('¡AVISO! Esta cédula ya cuenta con un pre-registro activo en la fila.', 'error');
-                    return;
+                // Validar pendientes
+                const pendingSnap = await get(child(dbRef, 'pending'));
+                if (pendingSnap.exists()) {
+                    const pendingList = Object.values(pendingSnap.val());
+                    if (pendingList.some(i => i.id === idVal)) {
+                        showSelfAlert('¡AVISO! Esta cédula ya cuenta con un pre-registro activo en la fila.', 'error');
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="fa-solid fa-qrcode mr-2"></i> Generar Mi Código de Reclamo';
+                        return;
+                    }
                 }
+
+                const claimCode = 'SRV-' + Math.floor(1000 + Math.random() * 9000);
+
+                await push(ref(db, 'pending'), {
+                    id: idVal,
+                    code: claimCode,
+                    name: nameVal,
+                    phone: phoneVal,
+                    photo: currentPhotoData || ''
+                });
+
+                document.getElementById('display-claim-code').textContent = claimCode;
+                const qrContainer = document.getElementById('qrcode-container');
+                qrContainer.innerHTML = '';
+                new QRCode(qrContainer, { text: claimCode, width: 150, height: 150, colorDark: "#4f46e5", colorLight: "#ffffff" });
+
+                document.getElementById('self-reg-form').classList.add('hidden');
+                document.getElementById('qr-result-card').classList.remove('hidden');
+
+            } catch (error) {
+                showSelfAlert('Error de conexión con la base de datos. Verifica tus reglas de Firebase.', 'error');
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-qrcode mr-2"></i> Generar Mi Código de Reclamo';
             }
-
-            const claimCode = 'SRV-' + Math.floor(1000 + Math.random() * 9000);
-
-            // Guardar en la base de datos de pendientes en la nube
-            push(ref(db, 'pending'), {
-                id: idVal,
-                code: claimCode,
-                name: nameVal,
-                phone: phoneVal,
-                photo: currentPhotoData || ''
-            });
-
-            document.getElementById('display-claim-code').textContent = claimCode;
-            const qrContainer = document.getElementById('qrcode-container');
-            qrContainer.innerHTML = '';
-            new QRCode(qrContainer, { text: claimCode, width: 150, height: 150, colorDark: "#4f46e5", colorLight: "#ffffff" });
-
-            document.getElementById('self-reg-form').classList.add('hidden');
-            document.getElementById('qr-result-card').classList.remove('hidden');
         };
 
         function showSelfAlert(msg, type) {
@@ -216,6 +226,9 @@
             window.clearPhoto();
             document.getElementById('qr-result-card').classList.add('hidden');
             document.getElementById('self-reg-form').classList.remove('hidden');
+            const btn = document.getElementById('submit-btn');
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa-solid fa-qrcode mr-2"></i> Generar Mi Código de Reclamo';
         };
     </script>
 </body>
