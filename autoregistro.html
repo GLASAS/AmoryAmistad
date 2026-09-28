@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Autorregistro - Reclamo de Souvenir</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- QR Code Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col justify-center items-center p-4 font-sans">
+
+    <div class="max-w-md w-full bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-slate-200">
+        <div class="text-center mb-6">
+            <div class="bg-indigo-50 text-indigo-600 w-12 h-12 rounded-2xl mx-auto flex items-center justify-center text-xl mb-3">
+                <i class="fa-solid fa-qrcode"></i>
+            </div>
+            <h2 class="text-xl font-bold text-slate-800">Autorregistro de Asistente</h2>
+            <p class="text-xs text-slate-500 mt-1">Ingresa tus datos para generar tu código personal y reclamar tu obsequio.</p>
+        </div>
+
+        <form id="self-reg-form" onsubmit="handleSelfRegister(event)" class="space-y-4">
+            <div>
+                <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Número de Cédula</label>
+                <input type="text" id="self-id" required placeholder="Número de identificación" 
+                    class="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:bg-white outline-none transition">
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Nombre Completo</label>
+                <input type="text" id="self-name" required placeholder="Tu nombre y apellido" 
+                    class="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:bg-white outline-none transition">
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Teléfono de Contacto</label>
+                <input type="tel" id="self-phone" required placeholder="Ej. 3001234567" 
+                    class="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:bg-white outline-none transition">
+            </div>
+
+            <!-- Foto -->
+            <div>
+                <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Fotografía (Opcional)</label>
+                <div class="flex items-center gap-3">
+                    <button type="button" onclick="openCameraModal()" class="flex-1 py-2 px-3 bg-slate-100 hover:bg-slate-200 border border-slate-300 rounded-xl text-xs font-semibold text-slate-700 transition flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-camera text-indigo-600"></i> Tomar Foto
+                    </button>
+                    <label class="flex-1 py-2 px-3 bg-slate-100 hover:bg-slate-200 border border-slate-300 rounded-xl text-xs font-semibold text-slate-700 transition flex items-center justify-center gap-2 cursor-pointer">
+                        <i class="fa-solid fa-upload text-indigo-600"></i> Subir Archivo
+                        <input type="file" id="self-photo-file" accept="image/*" class="hidden" onchange="handleFileSelected(event)">
+                    </label>
+                </div>
+                <div id="photo-preview-container" class="hidden mt-3 relative w-20 h-20 border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+                    <img id="photo-preview-img" src="" alt="Preview" class="w-full h-full object-cover">
+                    <button type="button" onclick="clearPhoto()" class="absolute top-1 right-1 bg-red-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-red-700">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+            </div>
+
+            <button type="submit" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-bold shadow-sm shadow-indigo-200 transition">
+                <i class="fa-solid fa-qrcode mr-2"></i> Generar Mi Código de Reclamo
+            </button>
+        </form>
+
+        <!-- Tarjeta de Código Generado -->
+        <div id="qr-result-card" class="hidden mt-6 p-6 bg-slate-50 border border-slate-200 rounded-2xl text-center space-y-4">
+            <div class="inline-block bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full text-xs font-bold">
+                ¡Pre-registro Exitoso!
+            </div>
+            <p class="text-xs text-slate-600">Presenta este código QR o número en la mesa de entrega:</p>
+            <div class="text-2xl font-black text-indigo-600 tracking-wider" id="display-claim-code">---</div>
+            <div id="qrcode-container" class="bg-white p-4 rounded-xl inline-block shadow-sm border border-slate-200"></div>
+            <div>
+                <button onclick="resetForm()" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold rounded-xl transition">
+                    Registrar Otro Asistente
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Cámara (Compatible iOS/Safari y Android/Chrome) -->
+    <div id="camera-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-xl max-w-md w-full overflow-hidden flex flex-col">
+            <div class="p-4 bg-slate-50 border-b border-slate-200 flex justify-between items-center">
+                <h3 class="font-bold text-slate-800 text-sm"><i class="fa-solid fa-camera text-indigo-600 mr-2"></i> Tomar Fotografía</h3>
+                <button onclick="closeCameraModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div class="p-4 bg-black relative flex justify-center items-center">
+                <video id="camera-video" autoplay playsinline class="w-full max-h-72 object-cover rounded-xl"></video>
+                <canvas id="camera-canvas" class="hidden"></canvas>
+            </div>
+            <div class="p-4 bg-slate-50 border-t border-slate-200 flex justify-end gap-2">
+                <button type="button" onclick="closeCameraModal()" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold rounded-xl transition">Cancelar</button>
+                <button type="button" onclick="capturePhoto()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl transition shadow-sm">
+                    <i class="fa-solid fa-camera mr-1"></i> Capturar Foto
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentPhotoData = null;
+        let mediaStream = null;
+
+        function compressImage(fileOrDataUrl, callback) {
+            const img = new Image();
+            img.onload = function() {
+                const canvas = document.createElement('canvas');
+                const MAX_WIDTH = 300;
+                let width = img.width;
+                let height = img.height;
+                if (width > MAX_WIDTH) {
+                    height = Math.round((height * MAX_WIDTH) / width);
+                    width = MAX_WIDTH;
+                }
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+                callback(canvas.toDataURL('image/jpeg', 0.7));
+            };
+            img.src = fileOrDataUrl;
+        }
+
+        function handleFileSelected(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = e => {
+                compressImage(e.target.result, compressed => {
+                    currentPhotoData = compressed;
+                    document.getElementById('photo-preview-img').src = compressed;
+                    document.getElementById('photo-preview-container').classList.remove('hidden');
+                });
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function clearPhoto() {
+            currentPhotoData = null;
+            document.getElementById('photo-preview-container').classList.add('hidden');
+            document.getElementById('self-photo-file').value = '';
+        }
+
+        async function openCameraModal() {
+            document.getElementById('camera-modal').classList.remove('hidden');
+            try {
+                // Configuración compatible con restricciones de Safari en iOS y Chrome en Android
+                mediaStream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { facingMode: 'user' }, 
+                    audio: false 
+                });
+                const videoEl = document.getElementById('camera-video');
+                videoEl.srcObject = mediaStream;
+                await videoEl.play();
+            } catch (err) {
+                alert('No se pudo acceder a la cámara. Revisa los permisos del navegador.');
+                closeCameraModal();
+            }
+        }
+
+        function closeCameraModal() {
+            if (mediaStream) {
+                mediaStream.getTracks().forEach(track => track.stop());
+                mediaStream = null;
+            }
+            document.getElementById('camera-modal').classList.add('hidden');
+        }
+
+        function capturePhoto() {
+            const video = document.getElementById('camera-video');
+            const canvas = document.getElementById('camera-canvas');
+            canvas.width = video.videoWidth || 640;
+            canvas.height = video.videoHeight || 480;
+            canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+            compressImage(canvas.toDataURL('image/jpeg'), compressed => {
+                currentPhotoData = compressed;
+                document.getElementById('photo-preview-img').src = compressed;
+                document.getElementById('photo-preview-container').classList.remove('hidden');
+                closeCameraModal();
+            });
+        }
+
+        function handleSelfRegister(event) {
+            event.preventDefault();
+            const idVal = document.getElementById('self-id').value.trim();
+            const nameVal = document.getElementById('self-name').value.trim();
+            const phoneVal = document.getElementById('self-phone').value.trim();
+
+            let deliveredList = JSON.parse(localStorage.getItem('souvenir_delivered') || '[]');
+            if (deliveredList.some(i => i.id === idVal)) {
+                alert('Esta cédula ya recibió su souvenir registrado.');
+                return;
+            }
+
+            let pendingList = JSON.parse(localStorage.getItem('souvenir_pending') || '[]');
+            const claimCode = 'SRV-' + Math.floor(1000 + Math.random() * 9000);
+
+            pendingList = pendingList.filter(i => i.id !== idVal);
+            pendingList.unshift({
+                id: idVal,
+                code: claimCode,
+                name: nameVal,
+                phone: phoneVal,
+                photo: currentPhotoData || ''
+            });
+
+            localStorage.setItem('souvenir_pending', JSON.stringify(pendingList));
+
+            document.getElementById('display-claim-code').textContent = claimCode;
+            const qrContainer = document.getElementById('qrcode-container');
+            qrContainer.innerHTML = '';
+            new QRCode(qrContainer, {
+                text: claimCode,
+                width: 150,
+                height: 150,
+                colorDark: "#4f46e5",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H
+            });
+
+            document.getElementById('self-reg-form').classList.add('hidden');
+            document.getElementById('qr-result-card').classList.remove('hidden');
+        }
+
+        function resetForm() {
+            document.getElementById('self-reg-form').reset();
+            clearPhoto();
+            document.getElementById('qr-result-card').classList.add('hidden');
+            document.getElementById('self-reg-form').classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
