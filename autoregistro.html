@@ -88,7 +88,9 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getDatabase, ref, push, get, child } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-        // CONFIGURACIÓN DE FIREBASE (¡Debe ser la misma que en el index!)
+        // ========================================================
+        // REEMPLAZA ESTE BLOQUE CON TUS CREDENCIALES REALES DE FIREBASE
+        // ========================================================
         const firebaseConfig = {
             apiKey: "TU_API_KEY",
             authDomain: "TU_DOMINIO.firebaseapp.com",
@@ -123,7 +125,6 @@
 
             const claimCode = 'SRV-' + Math.floor(1000 + Math.random() * 9000);
 
-            // Guardar directo en pendientes en la nube de Firebase
             push(ref(db, 'pending'), {
                 id: idVal,
                 code: claimCode,
