@@ -22,12 +22,12 @@
                 </div>
                 <div>
                     <h1 class="text-xl font-bold tracking-tight">Mesa de Entrega de Souvenirs</h1>
-                    <p class="text-xs text-indigo-200">Conectado a Base de Datos en Tiempo Real</p>
+                    <p class="text-xs text-indigo-200">Control de entregas y validación en tiempo real</p>
                 </div>
             </div>
             <div class="flex items-center gap-3">
                 <a href="autorregistro.html" target="_blank" class="px-4 py-2 bg-indigo-700 hover:bg-indigo-800 text-white text-xs font-bold rounded-xl transition flex items-center gap-2 shadow-sm">
-                    <i class="fa-solid fa-id-card mr-1"></i> Abrir Enlace de Autorregistro <i class="fa-solid fa-external-link text-[10px]"></i>
+                    <i class="fa-solid id-card mr-1"></i> Abrir Enlace de Autorregistro <i class="fa-solid fa-external-link text-[10px]"></i>
                 </a>
             </div>
         </div>
@@ -36,7 +36,7 @@
     <!-- Main Content -->
     <main class="max-w-7xl mx-auto px-4 py-6 flex-grow w-full space-y-6">
         
-        <!-- Estadísticas Rápidas -->
+        <!-- Estadísticas -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex items-center justify-between">
                 <div>
@@ -222,7 +222,7 @@
     <!-- Firebase SDKs -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, onValue, set, remove, push } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getDatabase, ref, onValue, remove, push } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
         // ========================================================
         // REEMPLAZA ESTE BLOQUE CON TUS CREDENCIALES REALES DE FIREBASE
