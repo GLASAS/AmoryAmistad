@@ -22,6 +22,9 @@
             <p class="text-xs text-slate-500 mt-1">Ingresa tus datos para generar tu código y reclamar tu obsequio.</p>
         </div>
 
+        <!-- Alerta de validación en pantalla -->
+        <div id="self-alert-box" class="hidden p-3 rounded-xl mb-4 text-sm font-medium"></div>
+
         <form id="self-reg-form" onsubmit="handleSelfRegister(event)" class="space-y-4">
             <div>
                 <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Número de Cédula</label>
@@ -114,17 +117,30 @@
             const phoneVal = document.getElementById('self-phone').value.trim();
 
             const dbRef = ref(db);
-            const snapshot = await get(child(dbRef, 'delivered'));
-            if (snapshot.exists()) {
-                const delivered = Object.values(snapshot.val());
-                if (delivered.some(i => i.id === idVal)) {
-                    alert('Esta cédula ya recibió su souvenir.');
+            
+            // Validar en Firebase si ya se entregó el souvenir a esta cédula
+            const deliveredSnap = await get(child(dbRef, 'delivered'));
+            if (deliveredSnap.exists()) {
+                const deliveredList = Object.values(deliveredSnap.val());
+                if (deliveredList.some(i => i.id === idVal)) {
+                    showSelfAlert('¡RESTRICCIÓN! Esta cédula ya recibió su obsequio y no puede registrarse nuevamente.', 'error');
+                    return;
+                }
+            }
+
+            // Validar en Firebase si ya está en la fila de pre-registrados pendientes
+            const pendingSnap = await get(child(dbRef, 'pending'));
+            if (pendingSnap.exists()) {
+                const pendingList = Object.values(pendingSnap.val());
+                if (pendingList.some(i => i.id === idVal)) {
+                    showSelfAlert('¡AVISO! Esta cédula ya cuenta con un pre-registro activo en la fila.', 'error');
                     return;
                 }
             }
 
             const claimCode = 'SRV-' + Math.floor(1000 + Math.random() * 9000);
 
+            // Guardar en la base de datos de pendientes en la nube
             push(ref(db, 'pending'), {
                 id: idVal,
                 code: claimCode,
@@ -141,6 +157,14 @@
             document.getElementById('self-reg-form').classList.add('hidden');
             document.getElementById('qr-result-card').classList.remove('hidden');
         };
+
+        function showSelfAlert(msg, type) {
+            const box = document.getElementById('self-alert-box');
+            box.className = `p-3 rounded-xl mb-4 text-sm font-medium border flex items-center gap-2 ${type === 'success' ? 'bg-emerald-50 text-emerald-800 border-emerald-200' : 'bg-red-50 text-red-800 border-red-200'}`;
+            box.innerHTML = `<span>${msg}</span>`;
+            box.classList.remove('hidden');
+            setTimeout(() => box.classList.add('hidden'), 7000);
+        }
 
         window.openCameraModal = async function() {
             document.getElementById('camera-modal').classList.remove('hidden');
