@@ -3,227 +3,86 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mesa de Entrega - Souvenirs</title>
+    <title>Autorregistro - Reclamo de Souvenir</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Librería de Cámara y Escáner QR compatible con Android e iOS -->
-    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    <!-- QR Code Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <!-- FontAwesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col font-sans">
+<body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col justify-center items-center p-4 font-sans">
 
-    <!-- Header -->
-    <header class="bg-indigo-600 text-white shadow-md">
-        <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
-            <div class="flex items-center space-x-3">
-                <div class="bg-white/10 p-2.5 rounded-lg">
-                    <i class="fa-solid fa-gift text-2xl"></i>
-                </div>
-                <div>
-                    <h1 class="text-xl font-bold tracking-tight">Mesa de Entrega de Souvenirs</h1>
-                    <p class="text-xs text-indigo-200">Panel de validación y control logístico</p>
-                </div>
+    <div class="max-w-md w-full bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-slate-200">
+        <div class="text-center mb-6">
+            <div class="bg-indigo-50 text-indigo-600 w-12 h-12 rounded-2xl mx-auto flex items-center justify-center text-xl mb-3">
+                <i class="fa-solid fa-qrcode"></i>
             </div>
-            <div class="flex items-center gap-3">
-                <a href="autorregistro.html" target="_blank" class="px-4 py-2 bg-indigo-700 hover:bg-indigo-800 text-white text-xs font-bold rounded-xl transition flex items-center gap-2 shadow-sm">
-                    <i class="fa-solid fa-id-card mr-1"></i> Abrir Enlace de Autorregistro <i class="fa-solid fa-external-link text-[10px]"></i>
-                </a>
-            </div>
-        </div>
-    </header>
-
-    <!-- Main Content -->
-    <main class="max-w-7xl mx-auto px-4 py-6 flex-grow w-full space-y-6">
-        
-        <!-- Estadísticas Rápidas -->
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex items-center justify-between">
-                <div>
-                    <p class="text-xs font-semibold uppercase text-slate-400">Total Entregados</p>
-                    <h3 id="stat-total" class="text-2xl font-bold text-slate-700 mt-1">0</h3>
-                </div>
-                <div class="bg-indigo-50 text-indigo-600 p-3 rounded-xl">
-                    <i class="fa-solid fa-box-open text-xl"></i>
-                </div>
-            </div>
-            <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex items-center justify-between">
-                <div>
-                    <p class="text-xs font-semibold uppercase text-slate-400">Pre-registrados en Fila</p>
-                    <h3 id="stat-pending" class="text-2xl font-bold text-amber-600 mt-1">0</h3>
-                </div>
-                <div class="bg-amber-50 text-amber-600 p-3 rounded-xl">
-                    <i class="fa-solid fa-users text-xl"></i>
-                </div>
-            </div>
-            <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex items-center justify-between">
-                <div>
-                    <p class="text-xs font-semibold uppercase text-slate-400">Almacenamiento Usado</p>
-                    <h3 id="stat-storage" class="text-2xl font-bold text-emerald-600 mt-1">0 KB</h3>
-                </div>
-                <div class="bg-emerald-50 text-emerald-600 p-3 rounded-xl">
-                    <i class="fa-solid fa-database text-xl"></i>
-                </div>
-            </div>
+            <h2 class="text-xl font-bold text-slate-800">Autorregistro de Asistente</h2>
+            <p class="text-xs text-slate-500 mt-1">Ingresa tus datos para generar tu código personal y reclamar tu obsequio.</p>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            
-            <!-- Formulario de Validación y Entrega -->
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 lg:col-span-1 h-fit">
-                <h2 class="text-lg font-bold text-slate-800 mb-4 pb-2 border-b border-slate-100 flex items-center">
-                    <i class="fa-solid fa-id-card text-indigo-600 mr-2"></i> Registrar Entrega
-                </h2>
-
-                <!-- Alertas en vivo -->
-                <div id="alert-box" class="hidden p-3 rounded-xl mb-4 text-sm font-medium"></div>
-
-                <form id="delivery-form" onsubmit="handleDelivery(event)" class="space-y-4">
-                    <div>
-                        <div class="flex justify-between items-center mb-1">
-                            <label class="text-xs font-bold uppercase tracking-wider text-slate-500">Cédula o Código QR</label>
-                            <button type="button" onclick="openScannerModal()" class="text-indigo-600 hover:text-indigo-800 text-xs font-bold flex items-center gap-1">
-                                <i class="fa-solid fa-camera"></i> Escanear QR con Cámara
-                            </button>
-                        </div>
-                        <div class="relative">
-                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-                                <i class="fa-solid fa-barcode"></i>
-                            </span>
-                            <input type="text" id="input-search-id" required placeholder="Número de cédula o código" 
-                                class="w-full pl-10 pr-24 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:bg-white outline-none transition">
-                            <button type="button" onclick="searchPreRegistered()" class="absolute right-1 top-1 bottom-1 px-3 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 text-xs font-bold rounded-lg transition">
-                                Buscar
-                            </button>
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Nombre Completo</label>
-                        <input type="text" id="input-name" required placeholder="Nombre del asistente" 
-                            class="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:bg-white outline-none transition">
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Teléfono / Contacto</label>
-                        <input type="tel" id="input-phone" placeholder="Ej. 3001234567" 
-                            class="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:bg-white outline-none transition">
-                    </div>
-
-                    <!-- Sección de Fotografía Comprimida -->
-                    <div>
-                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Foto de Evidencia (Mínimo Peso)</label>
-                        <div class="flex items-center gap-3">
-                            <button type="button" onclick="openCameraModal()" class="flex-1 py-2 px-3 bg-slate-100 hover:bg-slate-200 border border-slate-300 rounded-xl text-xs font-semibold text-slate-700 transition flex items-center justify-center gap-2">
-                                <i class="fa-solid fa-camera text-indigo-600"></i> Tomar Foto
-                            </button>
-                            <label class="flex-1 py-2 px-3 bg-slate-100 hover:bg-slate-200 border border-slate-300 rounded-xl text-xs font-semibold text-slate-700 transition flex items-center justify-center gap-2 cursor-pointer">
-                                <i class="fa-solid fa-upload text-indigo-600"></i> Subir Archivo
-                                <input type="file" id="input-photo-file" accept="image/*" class="hidden" onchange="handleFileSelected(event)">
-                            </label>
-                        </div>
-                        <div id="photo-preview-container" class="hidden mt-3 relative w-20 h-20 border border-slate-200 rounded-xl overflow-hidden shadow-sm">
-                            <img id="photo-preview-img" src="" alt="Preview" class="w-full h-full object-cover">
-                            <button type="button" onclick="clearPhoto()" class="absolute top-1 right-1 bg-red-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-red-700">
-                                <i class="fa-solid fa-xmark"></i>
-                            </button>
-                        </div>
-                    </div>
-
-                    <button type="submit" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-bold shadow-sm shadow-indigo-200 transition">
-                        <i class="fa-solid fa-check mr-2"></i> Confirmar Entrega
-                    </button>
-                </form>
+        <form id="self-reg-form" onsubmit="handleSelfRegister(event)" class="space-y-4">
+            <div>
+                <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Número de Cédula</label>
+                <input type="text" id="self-id" required placeholder="Número de identificación" 
+                    class="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:bg-white outline-none transition">
             </div>
 
-            <!-- Lista de Entregas y Pre-registros -->
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 lg:col-span-2 flex flex-col">
-                
-                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4 pb-2 border-b border-slate-100">
-                    <h2 class="text-lg font-bold text-slate-800 flex items-center">
-                        <i class="fa-solid fa-list-check text-indigo-600 mr-2"></i> Historial y Fila de Espera
-                    </h2>
-                    <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto">
-                        <div class="relative flex-1 sm:flex-initial">
-                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-                                <i class="fa-solid fa-search text-xs"></i>
-                            </span>
-                            <input type="text" id="input-filter" oninput="renderTables()" placeholder="Buscar por cédula o nombre..." 
-                                class="w-full sm:w-60 pl-8 pr-3 py-1.5 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500 focus:bg-white outline-none">
-                        </div>
-                        <button onclick="exportToCSV()" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-xl transition flex items-center gap-1.5 shadow-sm">
-                            <i class="fa-solid fa-file-excel"></i> Exportar CSV
-                        </button>
-                        <button onclick="clearAllData()" class="p-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl transition text-xs" title="Borrar toda la base de datos">
-                            <i class="fa-solid fa-trash-can"></i>
-                        </button>
-                    </div>
-                </div>
+            <div>
+                <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Nombre Completo</label>
+                <input type="text" id="self-name" required placeholder="Tu nombre y apellido" 
+                    class="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:bg-white outline-none transition">
+            </div>
 
-                <!-- Sub-pestañas Internas -->
-                <div class="flex gap-2 mb-4">
-                    <button onclick="switchSubTable('delivered')" id="subtab-delivered" class="px-3 py-1.5 rounded-lg text-xs font-bold transition bg-indigo-50 text-indigo-700">
-                        Entregados (<span id="count-delivered">0</span>)
+            <div>
+                <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Teléfono de Contacto</label>
+                <input type="tel" id="self-phone" required placeholder="Ej. 3001234567" 
+                    class="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:bg-white outline-none transition">
+            </div>
+
+            <!-- Foto -->
+            <div>
+                <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Fotografía (Opcional)</label>
+                <div class="flex items-center gap-3">
+                    <button type="button" onclick="openCameraModal()" class="flex-1 py-2 px-3 bg-slate-100 hover:bg-slate-200 border border-slate-300 rounded-xl text-xs font-semibold text-slate-700 transition flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-camera text-indigo-600"></i> Tomar Foto
                     </button>
-                    <button onclick="switchSubTable('pending')" id="subtab-pending" class="px-3 py-1.5 rounded-lg text-xs font-bold transition bg-slate-100 text-slate-600">
-                        Pre-registrados en Fila (<span id="count-pending-list">0</span>)
+                    <label class="flex-1 py-2 px-3 bg-slate-100 hover:bg-slate-200 border border-slate-300 rounded-xl text-xs font-semibold text-slate-700 transition flex items-center justify-center gap-2 cursor-pointer">
+                        <i class="fa-solid fa-upload text-indigo-600"></i> Subir Archivo
+                        <input type="file" id="self-photo-file" accept="image/*" class="hidden" onchange="handleFileSelected(event)">
+                    </label>
+                </div>
+                <div id="photo-preview-container" class="hidden mt-3 relative w-20 h-20 border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+                    <img id="photo-preview-img" src="" alt="Preview" class="w-full h-full object-cover">
+                    <button type="button" onclick="clearPhoto()" class="absolute top-1 right-1 bg-red-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-red-700">
+                        <i class="fa-solid fa-xmark"></i>
                     </button>
                 </div>
-
-                <!-- Tabla de Entregados -->
-                <div id="table-container-delivered" class="overflow-x-auto flex-grow">
-                    <table class="w-full text-left border-collapse">
-                        <thead>
-                            <tr class="border-b border-slate-200 text-slate-400 text-[11px] font-bold uppercase tracking-wider">
-                                <th class="py-2.5 px-3">Foto</th>
-                                <th class="py-2.5 px-3">Cédula / Código</th>
-                                <th class="py-2.5 px-3">Nombre</th>
-                                <th class="py-2.5 px-3">Fecha y Hora</th>
-                                <th class="py-2.5 px-3 text-right">Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody id="delivered-tbody" class="divide-y divide-slate-100 text-sm"></tbody>
-                    </table>
-                </div>
-
-                <!-- Tabla de Pendientes / Pre-registrados -->
-                <div id="table-container-pending" class="overflow-x-auto flex-grow hidden">
-                    <table class="w-full text-left border-collapse">
-                        <thead>
-                            <tr class="border-b border-slate-200 text-slate-400 text-[11px] font-bold uppercase tracking-wider">
-                                <th class="py-2.5 px-3">Foto</th>
-                                <th class="py-2.5 px-3">Cédula / Código</th>
-                                <th class="py-2.5 px-3">Nombre</th>
-                                <th class="py-2.5 px-3">Teléfono</th>
-                                <th class="py-2.5 px-3 text-right">Acción</th>
-                            </tr>
-                        </thead>
-                        <tbody id="pending-tbody" class="divide-y divide-slate-100 text-sm"></tbody>
-                    </table>
-                </div>
-
             </div>
 
-        </div>
-    </main>
+            <button type="submit" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-bold shadow-sm shadow-indigo-200 transition">
+                <i class="fa-solid fa-qrcode mr-2"></i> Generar Mi Código de Reclamo
+            </button>
+        </form>
 
-    <!-- Modal Escáner QR (Compatible Android / iOS) -->
-    <div id="scanner-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl shadow-xl max-w-md w-full overflow-hidden flex flex-col">
-            <div class="p-4 bg-slate-50 border-b border-slate-200 flex justify-between items-center">
-                <h3 class="font-bold text-slate-800 text-sm"><i class="fa-solid fa-qrcode text-indigo-600 mr-2"></i> Escanear Código QR</h3>
-                <button onclick="closeScannerModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+        <!-- Tarjeta de Código Generado -->
+        <div id="qr-result-card" class="hidden mt-6 p-6 bg-slate-50 border border-slate-200 rounded-2xl text-center space-y-4">
+            <div class="inline-block bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full text-xs font-bold">
+                ¡Pre-registro Exitoso!
             </div>
-            <div class="p-4 bg-slate-900 flex flex-col items-center justify-center">
-                <div id="qr-reader" class="w-full rounded-xl overflow-hidden"></div>
-            </div>
-            <div class="p-4 bg-slate-50 border-t border-slate-200 flex justify-end">
-                <button type="button" onclick="closeScannerModal()" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold rounded-xl transition">Cerrar</button>
+            <p class="text-xs text-slate-600">Presenta este código QR o número en la mesa de entrega:</p>
+            <div class="text-2xl font-black text-indigo-600 tracking-wider" id="display-claim-code">---</div>
+            <div id="qrcode-container" class="bg-white p-4 rounded-xl inline-block shadow-sm border border-slate-200"></div>
+            <div>
+                <button onclick="resetForm()" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold rounded-xl transition">
+                    Registrar Otro Asistente
+                </button>
             </div>
         </div>
     </div>
 
-    <!-- Modal de Cámara (Evidencia) -->
+    <!-- Modal de Cámara (Compatible iOS/Safari y Android/Chrome) -->
     <div id="camera-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl shadow-xl max-w-md w-full overflow-hidden flex flex-col">
             <div class="p-4 bg-slate-50 border-b border-slate-200 flex justify-between items-center">
@@ -243,90 +102,9 @@
         </div>
     </div>
 
-    <!-- Modal Visor de Foto -->
-    <div id="photo-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl shadow-xl max-w-sm w-full overflow-hidden flex flex-col p-4 text-center">
-            <div class="flex justify-between items-center mb-3">
-                <h3 class="font-bold text-slate-800 text-sm">Evidencia de Entrega</h3>
-                <button onclick="closePhotoModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
-            </div>
-            <div class="bg-slate-100 rounded-xl overflow-hidden p-2 flex justify-center">
-                <img id="modal-img-display" src="" alt="Evidencia" class="max-h-80 rounded-lg object-contain">
-            </div>
-        </div>
-    </div>
-
     <script>
-        let deliveredList = JSON.parse(localStorage.getItem('souvenir_delivered') || '[]');
-        let pendingList = JSON.parse(localStorage.getItem('souvenir_pending') || '[]');
         let currentPhotoData = null;
         let mediaStream = null;
-        let html5QrCode = null;
-
-        window.addEventListener('DOMContentLoaded', () => {
-            renderTables();
-            updateStats();
-            window.addEventListener('storage', () => {
-                deliveredList = JSON.parse(localStorage.getItem('souvenir_delivered') || '[]');
-                pendingList = JSON.parse(localStorage.getItem('souvenir_pending') || '[]');
-                renderTables();
-                updateStats();
-            });
-        });
-
-        function switchSubTable(sub) {
-            const delTbl = document.getElementById('table-container-delivered');
-            const penTbl = document.getElementById('table-container-pending');
-            const btnDel = document.getElementById('subtab-delivered');
-            const btnPen = document.getElementById('subtab-pending');
-
-            if (sub === 'delivered') {
-                delTbl.classList.remove('hidden');
-                penTbl.classList.add('hidden');
-                btnDel.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition bg-indigo-50 text-indigo-700";
-                btnPen.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition bg-slate-100 text-slate-600";
-            } else {
-                delTbl.classList.add('hidden');
-                penTbl.classList.remove('hidden');
-                btnPen.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition bg-indigo-50 text-indigo-700";
-                btnDel.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition bg-slate-100 text-slate-600";
-            }
-        }
-
-        // Funciones del Escáner QR compatible Android/iOS
-        function openScannerModal() {
-            document.getElementById('scanner-modal').classList.remove('hidden');
-            html5QrCode = new Html5Qrcode("qr-reader");
-            const config = { fps: 10, qrbox: { width: 220, height: 220 } };
-            
-            html5QrCode.start(
-                { facingMode: "environment" }, 
-                config, 
-                (decodedText) => {
-                    // Al escanear exitosamente
-                    document.getElementById('input-search-id').value = decodedText;
-                    closeScannerModal();
-                    searchPreRegistered();
-                },
-                (errorMessage) => {
-                    // Errores de escaneo en tiempo real (se ignoran para fluidez)
-                }
-            ).catch(err => {
-                alert("No se pudo iniciar la cámara trasera. Asegúrate de dar permisos de cámara en tu navegador.");
-                closeScannerModal();
-            });
-        }
-
-        function closeScannerModal() {
-            if (html5QrCode) {
-                html5QrCode.stop().then(() => {
-                    html5QrCode.clear();
-                }).catch(() => {
-                    html5QrCode.clear();
-                });
-            }
-            document.getElementById('scanner-modal').classList.add('hidden');
-        }
 
         function compressImage(fileOrDataUrl, callback) {
             const img = new Image();
@@ -365,16 +143,22 @@
         function clearPhoto() {
             currentPhotoData = null;
             document.getElementById('photo-preview-container').classList.add('hidden');
-            document.getElementById('input-photo-file').value = '';
+            document.getElementById('self-photo-file').value = '';
         }
 
         async function openCameraModal() {
             document.getElementById('camera-modal').classList.remove('hidden');
             try {
-                mediaStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false });
-                document.getElementById('camera-video').srcObject = mediaStream;
+                // Configuración compatible con restricciones de Safari en iOS y Chrome en Android
+                mediaStream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { facingMode: 'user' }, 
+                    audio: false 
+                });
+                const videoEl = document.getElementById('camera-video');
+                videoEl.srcObject = mediaStream;
+                await videoEl.play();
             } catch (err) {
-                alert('No se pudo acceder a la cámara.');
+                alert('No se pudo acceder a la cámara. Revisa los permisos del navegador.');
                 closeCameraModal();
             }
         }
@@ -401,185 +185,53 @@
             });
         }
 
-        function searchPreRegistered() {
-            const val = document.getElementById('input-search-id').value.trim();
-            if (!val) {
-                showAlert('Ingresa una cédula o código.', 'error');
-                return;
-            }
-
-            deliveredList = JSON.parse(localStorage.getItem('souvenir_delivered') || '[]');
-            pendingList = JSON.parse(localStorage.getItem('souvenir_pending') || '[]');
-
-            if (deliveredList.some(item => item.id === val || item.code === val)) {
-                showAlert(`¡RESTRICCIÓN! El souvenir ya fue entregado a esta cédula.`, 'error');
-                return;
-            }
-
-            const found = pendingList.find(item => item.id === val || item.code === val);
-            if (found) {
-                document.getElementById('input-name').value = found.name;
-                document.getElementById('input-phone').value = found.phone || '';
-                if (found.photo) {
-                    currentPhotoData = found.photo;
-                    document.getElementById('photo-preview-img').src = found.photo;
-                    document.getElementById('photo-preview-container').classList.remove('hidden');
-                }
-                showAlert(`¡Encontrado en pre-registro! Datos cargados.`, 'success');
-            } else {
-                showAlert(`No hay pre-registro previo con "${val}". Puedes registrarlo manualmente.`, 'warning');
-            }
-        }
-
-        function handleDelivery(event) {
+        function handleSelfRegister(event) {
             event.preventDefault();
-            const idVal = document.getElementById('input-search-id').value.trim();
-            const nameVal = document.getElementById('input-name').value.trim();
-            const phoneVal = document.getElementById('input-phone').value.trim();
+            const idVal = document.getElementById('self-id').value.trim();
+            const nameVal = document.getElementById('self-name').value.trim();
+            const phoneVal = document.getElementById('self-phone').value.trim();
 
-            deliveredList = JSON.parse(localStorage.getItem('souvenir_delivered') || '[]');
-            pendingList = JSON.parse(localStorage.getItem('souvenir_pending') || '[]');
-
-            if (deliveredList.some(item => item.id === idVal)) {
-                showAlert(`¡RESTRICCIÓN! La cédula "${idVal}" ya tiene un souvenir entregado.`, 'error');
+            let deliveredList = JSON.parse(localStorage.getItem('souvenir_delivered') || '[]');
+            if (deliveredList.some(i => i.id === idVal)) {
+                alert('Esta cédula ya recibió su souvenir registrado.');
                 return;
             }
 
-            const now = new Date();
-            const dateStr = now.toLocaleDateString() + ' ' + now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            let pendingList = JSON.parse(localStorage.getItem('souvenir_pending') || '[]');
+            const claimCode = 'SRV-' + Math.floor(1000 + Math.random() * 9000);
 
-            deliveredList.unshift({
+            pendingList = pendingList.filter(i => i.id !== idVal);
+            pendingList.unshift({
                 id: idVal,
-                code: idVal,
+                code: claimCode,
                 name: nameVal,
                 phone: phoneVal,
-                photo: currentPhotoData || '',
-                date: dateStr
+                photo: currentPhotoData || ''
             });
 
-            pendingList = pendingList.filter(item => item.id !== idVal && item.code !== idVal);
-
-            saveAndRefresh();
-            showAlert(`¡Souvenir entregado correctamente a ${nameVal}!`, 'success');
-            document.getElementById('delivery-form').reset();
-            clearPhoto();
-        }
-
-        function deliverFromPending(id) {
-            pendingList = JSON.parse(localStorage.getItem('souvenir_pending') || '[]');
-            const item = pendingList.find(i => i.id === id || i.code === id);
-            if (!item) return;
-
-            document.getElementById('input-search-id').value = item.id;
-            document.getElementById('input-name').value = item.name;
-            document.getElementById('input-phone').value = item.phone || '';
-            if (item.photo) {
-                currentPhotoData = item.photo;
-                document.getElementById('photo-preview-img').src = item.photo;
-                document.getElementById('photo-preview-container').classList.remove('hidden');
-            }
-            showAlert(`Datos cargados para entrega rápida de ${item.name}.`, 'success');
-        }
-
-        function saveAndRefresh() {
-            localStorage.setItem('souvenir_delivered', JSON.stringify(deliveredList));
             localStorage.setItem('souvenir_pending', JSON.stringify(pendingList));
-            renderTables();
-            updateStats();
-        }
 
-        function renderTables() {
-            deliveredList = JSON.parse(localStorage.getItem('souvenir_delivered') || '[]');
-            pendingList = JSON.parse(localStorage.getItem('souvenir_pending') || '[]');
-            const filterText = (document.getElementById('input-filter')?.value || '').toLowerCase();
-
-            const delTbody = document.getElementById('delivered-tbody');
-            const filteredDel = deliveredList.filter(item => item.name.toLowerCase().includes(filterText) || item.id.toLowerCase().includes(filterText));
-            document.getElementById('count-delivered').textContent = deliveredList.length;
-
-            delTbody.innerHTML = filteredDel.length === 0 ? `<tr><td colspan="5" class="py-6 text-center text-slate-400 text-xs">No hay registros.</td></tr>` :
-                filteredDel.map(item => `
-                    <tr class="hover:bg-slate-50 transition">
-                        <td class="py-2.5 px-3">${item.photo ? `<img src="${item.photo}" onclick="openPhotoModal('${item.photo}')" class="w-10 h-10 rounded-lg object-cover cursor-pointer border border-slate-200 shadow-sm">` : `<span class="text-slate-300 text-xs">Sin foto</span>`}</td>
-                        <td class="py-2.5 px-3 font-semibold text-slate-700">${item.id}</td>
-                        <td class="py-2.5 px-3 text-slate-800 font-medium">${item.name}</td>
-                        <td class="py-2.5 px-3 text-slate-500 text-xs">${item.date}</td>
-                        <td class="py-2.5 px-3 text-right"><button onclick="deleteDelivered('${item.id}')" class="p-1.5 bg-red-50 text-red-600 hover:bg-red-100 rounded-lg text-xs"><i class="fa-solid fa-trash-can"></i></button></td>
-                    </tr>
-                `).join('');
-
-            const penTbody = document.getElementById('pending-tbody');
-            const filteredPen = pendingList.filter(item => item.name.toLowerCase().includes(filterText) || item.id.toLowerCase().includes(filterText) || item.code.toLowerCase().includes(filterText));
-            document.getElementById('count-pending-list').textContent = pendingList.length;
-
-            penTbody.innerHTML = filteredPen.length === 0 ? `<tr><td colspan="5" class="py-6 text-center text-slate-400 text-xs">No hay pre-registros pendientes.</td></tr>` :
-                filteredPen.map(item => `
-                    <tr class="hover:bg-slate-50 transition">
-                        <td class="py-2.5 px-3">${item.photo ? `<img src="${item.photo}" onclick="openPhotoModal('${item.photo}')" class="w-10 h-10 rounded-lg object-cover cursor-pointer border border-slate-200 shadow-sm">` : `<span class="text-slate-300 text-xs">Sin foto</span>`}</td>
-                        <td class="py-2.5 px-3 font-semibold text-indigo-600">${item.id} <span class="text-xs text-slate-400 block">(${item.code})</span></td>
-                        <td class="py-2.5 px-3 text-slate-800 font-medium">${item.name}</td>
-                        <td class="py-2.5 px-3 text-slate-500 text-xs">${item.phone || 'N/A'}</td>
-                        <td class="py-2.5 px-3 text-right"><button onclick="deliverFromPending('${item.id}')" class="px-3 py-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold shadow-sm">Entregar</button></td>
-                    </tr>
-                `).join('');
-        }
-
-        function updateStats() {
-            document.getElementById('stat-total').textContent = deliveredList.length;
-            document.getElementById('stat-pending').textContent = pendingList.length;
-            const totalBytes = new Blob([localStorage.getItem('souvenir_delivered') || '', localStorage.getItem('souvenir_pending') || '']).size;
-            document.getElementById('stat-storage').textContent = (totalBytes / 1024).toFixed(1) + ' KB';
-        }
-
-        function openPhotoModal(url) {
-            document.getElementById('modal-img-display').src = url;
-            document.getElementById('photo-modal').classList.remove('hidden');
-        }
-
-        function closePhotoModal() {
-            document.getElementById('photo-modal').classList.add('hidden');
-        }
-
-        function showAlert(message, type) {
-            const box = document.getElementById('alert-box');
-            box.className = `p-3 rounded-xl mb-4 text-sm font-medium border flex items-center gap-2 ${type === 'success' ? 'bg-emerald-50 text-emerald-800 border-emerald-200' : type === 'error' ? 'bg-red-50 text-red-800 border-red-200' : 'bg-amber-50 text-amber-800 border-amber-200'}`;
-            box.innerHTML = `<i class="fa-solid ${type === 'success' ? 'fa-circle-check text-emerald-600' : type === 'error' ? 'fa-triangle-exclamation text-red-600' : 'fa-circle-info text-amber-600'}"></i> <span>${message}</span>`;
-            setTimeout(() => box.classList.add('hidden'), 6000);
-        }
-
-        function deleteDelivered(id) {
-            if (confirm('¿Estás seguro de eliminar este registro?')) {
-                deliveredList = deliveredList.filter(item => item.id !== id);
-                saveAndRefresh();
-            }
-        }
-
-        function clearAllData() {
-            if (confirm('¿ADVERTENCIA! Se borrará todo el historial.')) {
-                deliveredList = [];
-                pendingList = [];
-                saveAndRefresh();
-            }
-        }
-
-        function exportToCSV() {
-            deliveredList = JSON.parse(localStorage.getItem('souvenir_delivered') || '[]');
-            if (deliveredList.length === 0) {
-                alert('No hay registros para exportar.');
-                return;
-            }
-            let csvContent = "\uFEFFCedula,Nombre,Telefono,FechaEntrega\n";
-            deliveredList.forEach(item => {
-                csvContent += `"${item.id}","${item.name}","${item.phone || ''}","${item.date}"\n`;
+            document.getElementById('display-claim-code').textContent = claimCode;
+            const qrContainer = document.getElementById('qrcode-container');
+            qrContainer.innerHTML = '';
+            new QRCode(qrContainer, {
+                text: claimCode,
+                width: 150,
+                height: 150,
+                colorDark: "#4f46e5",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H
             });
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement("a");
-            link.setAttribute("href", url);
-            link.setAttribute("download", `entregas_souvenirs_${new Date().toISOString().slice(0,10)}.csv`);
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+
+            document.getElementById('self-reg-form').classList.add('hidden');
+            document.getElementById('qr-result-card').classList.remove('hidden');
+        }
+
+        function resetForm() {
+            document.getElementById('self-reg-form').reset();
+            clearPhoto();
+            document.getElementById('qr-result-card').classList.add('hidden');
+            document.getElementById('self-reg-form').classList.remove('hidden');
         }
     </script>
 </body>
