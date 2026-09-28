@@ -6,7 +6,7 @@
     <title>Mesa de Entrega - Souvenirs</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Librería de Cámara y Escáner QR compatible con Android e iOS -->
+    <!-- Librería de Escáner QR -->
     <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
     <!-- FontAwesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -22,7 +22,7 @@
                 </div>
                 <div>
                     <h1 class="text-xl font-bold tracking-tight">Mesa de Entrega de Souvenirs</h1>
-                    <p class="text-xs text-indigo-200">Panel de validación y control logístico</p>
+                    <p class="text-xs text-indigo-200">Conectado a Base de Datos en Tiempo Real</p>
                 </div>
             </div>
             <div class="flex items-center gap-3">
@@ -37,7 +37,7 @@
     <main class="max-w-7xl mx-auto px-4 py-6 flex-grow w-full space-y-6">
         
         <!-- Estadísticas Rápidas -->
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex items-center justify-between">
                 <div>
                     <p class="text-xs font-semibold uppercase text-slate-400">Total Entregados</p>
@@ -56,26 +56,16 @@
                     <i class="fa-solid fa-users text-xl"></i>
                 </div>
             </div>
-            <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex items-center justify-between">
-                <div>
-                    <p class="text-xs font-semibold uppercase text-slate-400">Almacenamiento Usado</p>
-                    <h3 id="stat-storage" class="text-2xl font-bold text-emerald-600 mt-1">0 KB</h3>
-                </div>
-                <div class="bg-emerald-50 text-emerald-600 p-3 rounded-xl">
-                    <i class="fa-solid fa-database text-xl"></i>
-                </div>
-            </div>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             
-            <!-- Formulario de Validación y Entrega -->
+            <!-- Formulario de Entrega -->
             <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 lg:col-span-1 h-fit">
                 <h2 class="text-lg font-bold text-slate-800 mb-4 pb-2 border-b border-slate-100 flex items-center">
                     <i class="fa-solid fa-id-card text-indigo-600 mr-2"></i> Registrar Entrega
                 </h2>
 
-                <!-- Alertas en vivo -->
                 <div id="alert-box" class="hidden p-3 rounded-xl mb-4 text-sm font-medium"></div>
 
                 <form id="delivery-form" onsubmit="handleDelivery(event)" class="space-y-4">
@@ -83,7 +73,7 @@
                         <div class="flex justify-between items-center mb-1">
                             <label class="text-xs font-bold uppercase tracking-wider text-slate-500">Cédula o Código QR</label>
                             <button type="button" onclick="openScannerModal()" class="text-indigo-600 hover:text-indigo-800 text-xs font-bold flex items-center gap-1">
-                                <i class="fa-solid fa-camera"></i> Escanear QR con Cámara
+                                <i class="fa-solid fa-camera"></i> Escanear QR
                             </button>
                         </div>
                         <div class="relative">
@@ -110,9 +100,8 @@
                             class="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:bg-white outline-none transition">
                     </div>
 
-                    <!-- Sección de Fotografía Comprimida -->
                     <div>
-                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Foto de Evidencia (Mínimo Peso)</label>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Foto de Evidencia</label>
                         <div class="flex items-center gap-3">
                             <button type="button" onclick="openCameraModal()" class="flex-1 py-2 px-3 bg-slate-100 hover:bg-slate-200 border border-slate-300 rounded-xl text-xs font-semibold text-slate-700 transition flex items-center justify-center gap-2">
                                 <i class="fa-solid fa-camera text-indigo-600"></i> Tomar Foto
@@ -136,31 +125,21 @@
                 </form>
             </div>
 
-            <!-- Lista de Entregas y Pre-registros -->
+            <!-- Listas -->
             <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 lg:col-span-2 flex flex-col">
-                
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4 pb-2 border-b border-slate-100">
                     <h2 class="text-lg font-bold text-slate-800 flex items-center">
                         <i class="fa-solid fa-list-check text-indigo-600 mr-2"></i> Historial y Fila de Espera
                     </h2>
                     <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto">
-                        <div class="relative flex-1 sm:flex-initial">
-                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-                                <i class="fa-solid fa-search text-xs"></i>
-                            </span>
-                            <input type="text" id="input-filter" oninput="renderTables()" placeholder="Buscar por cédula o nombre..." 
-                                class="w-full sm:w-60 pl-8 pr-3 py-1.5 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500 focus:bg-white outline-none">
-                        </div>
-                        <button onclick="exportToCSV()" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-xl transition flex items-center gap-1.5 shadow-sm">
+                        <input type="text" id="input-filter" oninput="renderTables()" placeholder="Buscar por cédula o nombre..." 
+                            class="w-full sm:w-60 px-3 py-1.5 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500 outline-none">
+                        <button onclick="exportToCSV()" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-xl transition flex items-center gap-1.5">
                             <i class="fa-solid fa-file-excel"></i> Exportar CSV
-                        </button>
-                        <button onclick="clearAllData()" class="p-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl transition text-xs" title="Borrar toda la base de datos">
-                            <i class="fa-solid fa-trash-can"></i>
                         </button>
                     </div>
                 </div>
 
-                <!-- Sub-pestañas Internas -->
                 <div class="flex gap-2 mb-4">
                     <button onclick="switchSubTable('delivered')" id="subtab-delivered" class="px-3 py-1.5 rounded-lg text-xs font-bold transition bg-indigo-50 text-indigo-700">
                         Entregados (<span id="count-delivered">0</span>)
@@ -170,23 +149,23 @@
                     </button>
                 </div>
 
-                <!-- Tabla de Entregados -->
+                <!-- Tabla Entregados -->
                 <div id="table-container-delivered" class="overflow-x-auto flex-grow">
                     <table class="w-full text-left border-collapse">
                         <thead>
                             <tr class="border-b border-slate-200 text-slate-400 text-[11px] font-bold uppercase tracking-wider">
                                 <th class="py-2.5 px-3">Foto</th>
-                                <th class="py-2.5 px-3">Cédula / Código</th>
+                                <th class="py-2.5 px-3">Cédula</th>
                                 <th class="py-2.5 px-3">Nombre</th>
-                                <th class="py-2.5 px-3">Fecha y Hora</th>
-                                <th class="py-2.5 px-3 text-right">Acciones</th>
+                                <th class="py-2.5 px-3">Fecha</th>
+                                <th class="py-2.5 px-3 text-right">Acción</th>
                             </tr>
                         </thead>
                         <tbody id="delivered-tbody" class="divide-y divide-slate-100 text-sm"></tbody>
                     </table>
                 </div>
 
-                <!-- Tabla de Pendientes / Pre-registrados -->
+                <!-- Tabla Pendientes -->
                 <div id="table-container-pending" class="overflow-x-auto flex-grow hidden">
                     <table class="w-full text-left border-collapse">
                         <thead>
@@ -201,223 +180,100 @@
                         <tbody id="pending-tbody" class="divide-y divide-slate-100 text-sm"></tbody>
                     </table>
                 </div>
-
             </div>
-
         </div>
     </main>
 
-    <!-- Modal Escáner QR (Compatible Android / iOS) -->
+    <!-- Modales -->
     <div id="scanner-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl shadow-xl max-w-md w-full overflow-hidden flex flex-col">
             <div class="p-4 bg-slate-50 border-b border-slate-200 flex justify-between items-center">
-                <h3 class="font-bold text-slate-800 text-sm"><i class="fa-solid fa-qrcode text-indigo-600 mr-2"></i> Escanear Código QR</h3>
+                <h3 class="font-bold text-slate-800 text-sm">Escanear QR</h3>
                 <button onclick="closeScannerModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
-            <div class="p-4 bg-slate-900 flex flex-col items-center justify-center">
-                <div id="qr-reader" class="w-full rounded-xl overflow-hidden"></div>
-            </div>
+            <div class="p-4 bg-slate-900"><div id="qr-reader" class="w-full"></div></div>
             <div class="p-4 bg-slate-50 border-t border-slate-200 flex justify-end">
-                <button type="button" onclick="closeScannerModal()" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold rounded-xl transition">Cerrar</button>
+                <button onclick="closeScannerModal()" class="px-4 py-2 bg-slate-200 text-slate-700 text-xs font-bold rounded-xl">Cerrar</button>
             </div>
         </div>
     </div>
 
-    <!-- Modal de Cámara (Evidencia) -->
     <div id="camera-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl shadow-xl max-w-md w-full overflow-hidden flex flex-col">
-            <div class="p-4 bg-slate-50 border-b border-slate-200 flex justify-between items-center">
-                <h3 class="font-bold text-slate-800 text-sm"><i class="fa-solid fa-camera text-indigo-600 mr-2"></i> Tomar Fotografía</h3>
-                <button onclick="closeCameraModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            <div class="p-4 bg-slate-50 border-b flex justify-between items-center">
+                <h3 class="font-bold text-slate-800 text-sm">Tomar Foto</h3>
+                <button onclick="closeCameraModal()"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
-            <div class="p-4 bg-black relative flex justify-center items-center">
-                <video id="camera-video" autoplay playsinline class="w-full max-h-72 object-cover rounded-xl"></video>
-                <canvas id="camera-canvas" class="hidden"></canvas>
-            </div>
-            <div class="p-4 bg-slate-50 border-t border-slate-200 flex justify-end gap-2">
-                <button type="button" onclick="closeCameraModal()" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold rounded-xl transition">Cancelar</button>
-                <button type="button" onclick="capturePhoto()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl transition shadow-sm">
-                    <i class="fa-solid fa-camera mr-1"></i> Capturar Foto
-                </button>
+            <div class="p-4 bg-black relative flex justify-center"><video id="camera-video" autoplay playsinline class="w-full max-h-72 object-cover rounded-xl"></video><canvas id="camera-canvas" class="hidden"></canvas></div>
+            <div class="p-4 bg-slate-50 border-t flex justify-end gap-2">
+                <button onclick="closeCameraModal()" class="px-4 py-2 bg-slate-200 text-xs font-bold rounded-xl">Cancelar</button>
+                <button onclick="capturePhoto()" class="px-4 py-2 bg-indigo-600 text-white text-xs font-bold rounded-xl">Capturar</button>
             </div>
         </div>
     </div>
 
-    <!-- Modal Visor de Foto -->
     <div id="photo-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl shadow-xl max-w-sm w-full overflow-hidden flex flex-col p-4 text-center">
-            <div class="flex justify-between items-center mb-3">
-                <h3 class="font-bold text-slate-800 text-sm">Evidencia de Entrega</h3>
-                <button onclick="closePhotoModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
-            </div>
-            <div class="bg-slate-100 rounded-xl overflow-hidden p-2 flex justify-center">
-                <img id="modal-img-display" src="" alt="Evidencia" class="max-h-80 rounded-lg object-contain">
-            </div>
+        <div class="bg-white rounded-2xl shadow-xl max-w-sm w-full p-4 text-center">
+            <div class="flex justify-between items-center mb-3"><h3 class="font-bold text-sm">Evidencia</h3><button onclick="closePhotoModal()"><i class="fa-solid fa-xmark"></i></button></div>
+            <img id="modal-img-display" src="" class="max-h-80 rounded-lg mx-auto">
         </div>
     </div>
 
-    <script>
-        let deliveredList = JSON.parse(localStorage.getItem('souvenir_delivered') || '[]');
-        let pendingList = JSON.parse(localStorage.getItem('souvenir_pending') || '[]');
-        let currentPhotoData = null;
-        let mediaStream = null;
-        let html5QrCode = null;
+    <!-- Firebase SDKs -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, onValue, set, remove, push } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-        window.addEventListener('DOMContentLoaded', () => {
+        // CONFIGURACIÓN DE FIREBASE (¡Reemplaza con tus datos de tu consola de Firebase!)
+        const firebaseConfig = {
+            apiKey: "TU_API_KEY",
+            authDomain: "TU_DOMINIO.firebaseapp.com",
+            databaseURL: "https://TU_BASE_DE_DATOS.firebaseio.com",
+            projectId: "TU_PROJECT_ID",
+            storageBucket: "TU_BUCKET.appspot.com",
+            messagingSenderId: "TU_SENDER_ID",
+            appId: "TU_APP_ID"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        let deliveredData = {};
+        let pendingData = {};
+        let currentPhotoData = null;
+        let html5QrCode = null;
+        let mediaStream = null;
+
+        // Escuchar datos en tiempo real de Firebase
+        onValue(ref(db, 'delivered'), (snapshot) => {
+            deliveredData = snapshot.val() || {};
             renderTables();
             updateStats();
-            window.addEventListener('storage', () => {
-                deliveredList = JSON.parse(localStorage.getItem('souvenir_delivered') || '[]');
-                pendingList = JSON.parse(localStorage.getItem('souvenir_pending') || '[]');
-                renderTables();
-                updateStats();
-            });
         });
 
-        function switchSubTable(sub) {
-            const delTbl = document.getElementById('table-container-delivered');
-            const penTbl = document.getElementById('table-container-pending');
-            const btnDel = document.getElementById('subtab-delivered');
-            const btnPen = document.getElementById('subtab-pending');
+        onValue(ref(db, 'pending'), (snapshot) => {
+            pendingData = snapshot.val() || {};
+            renderTables();
+            updateStats();
+        });
 
-            if (sub === 'delivered') {
-                delTbl.classList.remove('hidden');
-                penTbl.classList.add('hidden');
-                btnDel.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition bg-indigo-50 text-indigo-700";
-                btnPen.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition bg-slate-100 text-slate-600";
-            } else {
-                delTbl.classList.add('hidden');
-                penTbl.classList.remove('hidden');
-                btnPen.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition bg-indigo-50 text-indigo-700";
-                btnDel.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition bg-slate-100 text-slate-600";
-            }
-        }
+        window.switchSubTable = function(sub) {
+            document.getElementById('table-container-delivered').classList.toggle('hidden', sub !== 'delivered');
+            document.getElementById('table-container-pending').classList.toggle('hidden', sub !== 'pending');
+            document.getElementById('subtab-delivered').className = `px-3 py-1.5 rounded-lg text-xs font-bold transition ${sub === 'delivered' ? 'bg-indigo-50 text-indigo-700' : 'bg-slate-100 text-slate-600'}`;
+            document.getElementById('subtab-pending').className = `px-3 py-1.5 rounded-lg text-xs font-bold transition ${sub === 'pending' ? 'bg-indigo-50 text-indigo-700' : 'bg-slate-100 text-slate-600'}`;
+        };
 
-        // Funciones del Escáner QR compatible Android/iOS
-        function openScannerModal() {
-            document.getElementById('scanner-modal').classList.remove('hidden');
-            html5QrCode = new Html5Qrcode("qr-reader");
-            const config = { fps: 10, qrbox: { width: 220, height: 220 } };
-            
-            html5QrCode.start(
-                { facingMode: "environment" }, 
-                config, 
-                (decodedText) => {
-                    // Al escanear exitosamente
-                    document.getElementById('input-search-id').value = decodedText;
-                    closeScannerModal();
-                    searchPreRegistered();
-                },
-                (errorMessage) => {
-                    // Errores de escaneo en tiempo real (se ignoran para fluidez)
-                }
-            ).catch(err => {
-                alert("No se pudo iniciar la cámara trasera. Asegúrate de dar permisos de cámara en tu navegador.");
-                closeScannerModal();
-            });
-        }
-
-        function closeScannerModal() {
-            if (html5QrCode) {
-                html5QrCode.stop().then(() => {
-                    html5QrCode.clear();
-                }).catch(() => {
-                    html5QrCode.clear();
-                });
-            }
-            document.getElementById('scanner-modal').classList.add('hidden');
-        }
-
-        function compressImage(fileOrDataUrl, callback) {
-            const img = new Image();
-            img.onload = function() {
-                const canvas = document.createElement('canvas');
-                const MAX_WIDTH = 300;
-                let width = img.width;
-                let height = img.height;
-                if (width > MAX_WIDTH) {
-                    height = Math.round((height * MAX_WIDTH) / width);
-                    width = MAX_WIDTH;
-                }
-                canvas.width = width;
-                canvas.height = height;
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(img, 0, 0, width, height);
-                callback(canvas.toDataURL('image/jpeg', 0.7));
-            };
-            img.src = fileOrDataUrl;
-        }
-
-        function handleFileSelected(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = e => {
-                compressImage(e.target.result, compressed => {
-                    currentPhotoData = compressed;
-                    document.getElementById('photo-preview-img').src = compressed;
-                    document.getElementById('photo-preview-container').classList.remove('hidden');
-                });
-            };
-            reader.readAsDataURL(file);
-        }
-
-        function clearPhoto() {
-            currentPhotoData = null;
-            document.getElementById('photo-preview-container').classList.add('hidden');
-            document.getElementById('input-photo-file').value = '';
-        }
-
-        async function openCameraModal() {
-            document.getElementById('camera-modal').classList.remove('hidden');
-            try {
-                mediaStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false });
-                document.getElementById('camera-video').srcObject = mediaStream;
-            } catch (err) {
-                alert('No se pudo acceder a la cámara.');
-                closeCameraModal();
-            }
-        }
-
-        function closeCameraModal() {
-            if (mediaStream) {
-                mediaStream.getTracks().forEach(track => track.stop());
-                mediaStream = null;
-            }
-            document.getElementById('camera-modal').classList.add('hidden');
-        }
-
-        function capturePhoto() {
-            const video = document.getElementById('camera-video');
-            const canvas = document.getElementById('camera-canvas');
-            canvas.width = video.videoWidth || 640;
-            canvas.height = video.videoHeight || 480;
-            canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
-            compressImage(canvas.toDataURL('image/jpeg'), compressed => {
-                currentPhotoData = compressed;
-                document.getElementById('photo-preview-img').src = compressed;
-                document.getElementById('photo-preview-container').classList.remove('hidden');
-                closeCameraModal();
-            });
-        }
-
-        function searchPreRegistered() {
+        window.searchPreRegistered = function() {
             const val = document.getElementById('input-search-id').value.trim();
-            if (!val) {
-                showAlert('Ingresa una cédula o código.', 'error');
-                return;
-            }
+            if (!val) return showAlert('Ingresa una cédula o código.', 'error');
 
-            deliveredList = JSON.parse(localStorage.getItem('souvenir_delivered') || '[]');
-            pendingList = JSON.parse(localStorage.getItem('souvenir_pending') || '[]');
+            const isDelivered = Object.values(deliveredData).some(item => item.id === val || item.code === val);
+            if (isDelivered) return showAlert('¡RESTRICCIÓN! Este usuario ya recibió su souvenir.', 'error');
 
-            if (deliveredList.some(item => item.id === val || item.code === val)) {
-                showAlert(`¡RESTRICCIÓN! El souvenir ya fue entregado a esta cédula.`, 'error');
-                return;
-            }
-
-            const found = pendingList.find(item => item.id === val || item.code === val);
-            if (found) {
+            const foundKey = Object.keys(pendingData).find(key => pendingData[key].id === val || pendingData[key].code === val);
+            if (foundKey) {
+                const found = pendingData[foundKey];
                 document.getElementById('input-name').value = found.name;
                 document.getElementById('input-phone').value = found.phone || '';
                 if (found.photo) {
@@ -425,30 +281,26 @@
                     document.getElementById('photo-preview-img').src = found.photo;
                     document.getElementById('photo-preview-container').classList.remove('hidden');
                 }
-                showAlert(`¡Encontrado en pre-registro! Datos cargados.`, 'success');
+                showAlert('¡Encontrado en pre-registro! Datos cargados.', 'success');
             } else {
-                showAlert(`No hay pre-registro previo con "${val}". Puedes registrarlo manualmente.`, 'warning');
+                showAlert('No hay pre-registro previo. Puedes registrarlo manualmente.', 'warning');
             }
-        }
+        };
 
-        function handleDelivery(event) {
+        window.handleDelivery = function(event) {
             event.preventDefault();
             const idVal = document.getElementById('input-search-id').value.trim();
             const nameVal = document.getElementById('input-name').value.trim();
             const phoneVal = document.getElementById('input-phone').value.trim();
 
-            deliveredList = JSON.parse(localStorage.getItem('souvenir_delivered') || '[]');
-            pendingList = JSON.parse(localStorage.getItem('souvenir_pending') || '[]');
-
-            if (deliveredList.some(item => item.id === idVal)) {
-                showAlert(`¡RESTRICCIÓN! La cédula "${idVal}" ya tiene un souvenir entregado.`, 'error');
-                return;
-            }
+            const isDelivered = Object.values(deliveredData).some(item => item.id === idVal);
+            if (isDelivered) return showAlert('¡RESTRICCIÓN! Esta cédula ya tiene un souvenir entregado.', 'error');
 
             const now = new Date();
             const dateStr = now.toLocaleDateString() + ' ' + now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-            deliveredList.unshift({
+            // Guardar en entregados en Firebase
+            push(ref(db, 'delivered'), {
                 id: idVal,
                 code: idVal,
                 name: nameVal,
@@ -457,18 +309,22 @@
                 date: dateStr
             });
 
-            pendingList = pendingList.filter(item => item.id !== idVal && item.code !== idVal);
+            // Remover de pendientes si existía
+            Object.keys(pendingData).forEach(key => {
+                if (pendingData[key].id === idVal || pendingData[key].code === idVal) {
+                    remove(ref(db, `pending/${key}`));
+                }
+            });
 
-            saveAndRefresh();
-            showAlert(`¡Souvenir entregado correctamente a ${nameVal}!`, 'success');
+            showAlert(`¡Souvenir entregado a ${nameVal}!`, 'success');
             document.getElementById('delivery-form').reset();
-            clearPhoto();
-        }
+            window.clearPhoto();
+        };
 
-        function deliverFromPending(id) {
-            pendingList = JSON.parse(localStorage.getItem('souvenir_pending') || '[]');
-            const item = pendingList.find(i => i.id === id || i.code === id);
-            if (!item) return;
+        window.deliverFromPending = function(id) {
+            const foundKey = Object.keys(pendingData).find(key => pendingData[key].id === id || pendingData[key].code === id);
+            if (!foundKey) return;
+            const item = pendingData[foundKey];
 
             document.getElementById('input-search-id').value = item.id;
             document.getElementById('input-name').value = item.name;
@@ -479,108 +335,138 @@
                 document.getElementById('photo-preview-container').classList.remove('hidden');
             }
             showAlert(`Datos cargados para entrega rápida de ${item.name}.`, 'success');
-        }
+        };
 
-        function saveAndRefresh() {
-            localStorage.setItem('souvenir_delivered', JSON.stringify(deliveredList));
-            localStorage.setItem('souvenir_pending', JSON.stringify(pendingList));
-            renderTables();
-            updateStats();
-        }
+        window.deleteDelivered = function(firebaseKey) {
+            if (confirm('¿Eliminar este registro?')) {
+                remove(ref(db, `delivered/${firebaseKey}`));
+            }
+        };
 
         function renderTables() {
-            deliveredList = JSON.parse(localStorage.getItem('souvenir_delivered') || '[]');
-            pendingList = JSON.parse(localStorage.getItem('souvenir_pending') || '[]');
             const filterText = (document.getElementById('input-filter')?.value || '').toLowerCase();
+            
+            // Render Entregados
+            const delEntries = Object.entries(deliveredData).reverse();
+            const filteredDel = delEntries.filter(([k, item]) => item.name.toLowerCase().includes(filterText) || item.id.toLowerCase().includes(filterText));
+            document.getElementById('count-delivered').textContent = delEntries.length;
 
-            const delTbody = document.getElementById('delivered-tbody');
-            const filteredDel = deliveredList.filter(item => item.name.toLowerCase().includes(filterText) || item.id.toLowerCase().includes(filterText));
-            document.getElementById('count-delivered').textContent = deliveredList.length;
-
-            delTbody.innerHTML = filteredDel.length === 0 ? `<tr><td colspan="5" class="py-6 text-center text-slate-400 text-xs">No hay registros.</td></tr>` :
-                filteredDel.map(item => `
-                    <tr class="hover:bg-slate-50 transition">
-                        <td class="py-2.5 px-3">${item.photo ? `<img src="${item.photo}" onclick="openPhotoModal('${item.photo}')" class="w-10 h-10 rounded-lg object-cover cursor-pointer border border-slate-200 shadow-sm">` : `<span class="text-slate-300 text-xs">Sin foto</span>`}</td>
+            document.getElementById('delivered-tbody').innerHTML = filteredDel.length === 0 ? `<tr><td colspan="5" class="py-6 text-center text-slate-400 text-xs">Sin registros.</td></tr>` :
+                filteredDel.map(([key, item]) => `
+                    <tr class="hover:bg-slate-50">
+                        <td class="py-2.5 px-3">${item.photo ? `<img src="${item.photo}" onclick="openPhotoModal('${item.photo}')" class="w-10 h-10 rounded-lg object-cover cursor-pointer border">` : 'Sin foto'}</td>
                         <td class="py-2.5 px-3 font-semibold text-slate-700">${item.id}</td>
-                        <td class="py-2.5 px-3 text-slate-800 font-medium">${item.name}</td>
+                        <td class="py-2.5 px-3 text-slate-800">${item.name}</td>
                         <td class="py-2.5 px-3 text-slate-500 text-xs">${item.date}</td>
-                        <td class="py-2.5 px-3 text-right"><button onclick="deleteDelivered('${item.id}')" class="p-1.5 bg-red-50 text-red-600 hover:bg-red-100 rounded-lg text-xs"><i class="fa-solid fa-trash-can"></i></button></td>
+                        <td class="py-2.5 px-3 text-right"><button onclick="deleteDelivered('${key}')" class="p-1.5 bg-red-50 text-red-600 rounded-lg text-xs"><i class="fa-solid fa-trash-can"></i></button></td>
                     </tr>
                 `).join('');
 
-            const penTbody = document.getElementById('pending-tbody');
-            const filteredPen = pendingList.filter(item => item.name.toLowerCase().includes(filterText) || item.id.toLowerCase().includes(filterText) || item.code.toLowerCase().includes(filterText));
-            document.getElementById('count-pending-list').textContent = pendingList.length;
+            // Render Pendientes
+            const penEntries = Object.entries(pendingData).reverse();
+            const filteredPen = penEntries.filter(([k, item]) => item.name.toLowerCase().includes(filterText) || item.id.toLowerCase().includes(filterText));
+            document.getElementById('count-pending-list').textContent = penEntries.length;
 
-            penTbody.innerHTML = filteredPen.length === 0 ? `<tr><td colspan="5" class="py-6 text-center text-slate-400 text-xs">No hay pre-registros pendientes.</td></tr>` :
-                filteredPen.map(item => `
-                    <tr class="hover:bg-slate-50 transition">
-                        <td class="py-2.5 px-3">${item.photo ? `<img src="${item.photo}" onclick="openPhotoModal('${item.photo}')" class="w-10 h-10 rounded-lg object-cover cursor-pointer border border-slate-200 shadow-sm">` : `<span class="text-slate-300 text-xs">Sin foto</span>`}</td>
+            document.getElementById('pending-tbody').innerHTML = filteredPen.length === 0 ? `<tr><td colspan="5" class="py-6 text-center text-slate-400 text-xs">No hay pre-registros.</td></tr>` :
+                filteredPen.map(([key, item]) => `
+                    <tr class="hover:bg-slate-50">
+                        <td class="py-2.5 px-3">${item.photo ? `<img src="${item.photo}" onclick="openPhotoModal('${item.photo}')" class="w-10 h-10 rounded-lg object-cover cursor-pointer border">` : 'Sin foto'}</td>
                         <td class="py-2.5 px-3 font-semibold text-indigo-600">${item.id} <span class="text-xs text-slate-400 block">(${item.code})</span></td>
-                        <td class="py-2.5 px-3 text-slate-800 font-medium">${item.name}</td>
+                        <td class="py-2.5 px-3 text-slate-800">${item.name}</td>
                         <td class="py-2.5 px-3 text-slate-500 text-xs">${item.phone || 'N/A'}</td>
-                        <td class="py-2.5 px-3 text-right"><button onclick="deliverFromPending('${item.id}')" class="px-3 py-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold shadow-sm">Entregar</button></td>
+                        <td class="py-2.5 px-3 text-right"><button onclick="deliverFromPending('${item.id}')" class="px-3 py-1 bg-indigo-600 text-white rounded-lg text-xs font-bold">Entregar</button></td>
                     </tr>
                 `).join('');
         }
 
         function updateStats() {
-            document.getElementById('stat-total').textContent = deliveredList.length;
-            document.getElementById('stat-pending').textContent = pendingList.length;
-            const totalBytes = new Blob([localStorage.getItem('souvenir_delivered') || '', localStorage.getItem('souvenir_pending') || '']).size;
-            document.getElementById('stat-storage').textContent = (totalBytes / 1024).toFixed(1) + ' KB';
+            document.getElementById('stat-total').textContent = Object.keys(deliveredData).length;
+            document.getElementById('stat-pending').textContent = Object.keys(pendingData).length;
         }
 
-        function openPhotoModal(url) {
+        window.openScannerModal = function() {
+            document.getElementById('scanner-modal').classList.remove('hidden');
+            html5QrCode = new Html5Qrcode("qr-reader");
+            html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: 200 }, (text) => {
+                document.getElementById('input-search-id').value = text;
+                window.closeScannerModal();
+                window.searchPreRegistered();
+            }).catch(() => alert("No se pudo abrir la cámara."));
+        };
+
+        window.closeScannerModal = function() {
+            if (html5QrCode) html5QrCode.stop().then(() => html5QrCode.clear()).catch(() => {});
+            document.getElementById('scanner-modal').classList.add('hidden');
+        };
+
+        window.openCameraModal = async function() {
+            document.getElementById('camera-modal').classList.remove('hidden');
+            mediaStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
+            document.getElementById('camera-video').srcObject = mediaStream;
+        };
+
+        window.closeCameraModal = function() {
+            if (mediaStream) mediaStream.getTracks().forEach(t => t.stop());
+            document.getElementById('camera-modal').classList.add('hidden');
+        };
+
+        window.capturePhoto = function() {
+            const video = document.getElementById('camera-video');
+            const canvas = document.getElementById('camera-canvas');
+            canvas.width = 300; canvas.height = (video.videoHeight * 300) / video.videoWidth;
+            canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+            currentPhotoData = canvas.toDataURL('image/jpeg', 0.7);
+            document.getElementById('photo-preview-img').src = currentPhotoData;
+            document.getElementById('photo-preview-container').classList.remove('hidden');
+            window.closeCameraModal();
+        };
+
+        window.clearPhoto = function() {
+            currentPhotoData = null;
+            document.getElementById('photo-preview-container').classList.add('hidden');
+            document.getElementById('input-photo-file').value = '';
+        };
+
+        window.handleFileSelected = function(e) {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = 300; canvas.height = (img.height * 300) / img.width;
+                    canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+                    currentPhotoData = canvas.toDataURL('image/jpeg', 0.7);
+                    document.getElementById('photo-preview-img').src = currentPhotoData;
+                    document.getElementById('photo-preview-container').classList.remove('hidden');
+                };
+                img.src = event.target.result;
+            };
+            reader.readAsDataURL(e.target.files[0]);
+        };
+
+        window.openPhotoModal = function(url) {
             document.getElementById('modal-img-display').src = url;
             document.getElementById('photo-modal').classList.remove('hidden');
-        }
+        };
+        window.closePhotoModal = function() { document.getElementById('photo-modal').classList.add('hidden'); };
 
-        function closePhotoModal() {
-            document.getElementById('photo-modal').classList.add('hidden');
-        }
-
-        function showAlert(message, type) {
+        window.showAlert = function(msg, type) {
             const box = document.getElementById('alert-box');
             box.className = `p-3 rounded-xl mb-4 text-sm font-medium border flex items-center gap-2 ${type === 'success' ? 'bg-emerald-50 text-emerald-800 border-emerald-200' : type === 'error' ? 'bg-red-50 text-red-800 border-red-200' : 'bg-amber-50 text-amber-800 border-amber-200'}`;
-            box.innerHTML = `<i class="fa-solid ${type === 'success' ? 'fa-circle-check text-emerald-600' : type === 'error' ? 'fa-triangle-exclamation text-red-600' : 'fa-circle-info text-amber-600'}"></i> <span>${message}</span>`;
+            box.innerHTML = `<span>${msg}</span>`;
             setTimeout(() => box.classList.add('hidden'), 6000);
-        }
+        };
 
-        function deleteDelivered(id) {
-            if (confirm('¿Estás seguro de eliminar este registro?')) {
-                deliveredList = deliveredList.filter(item => item.id !== id);
-                saveAndRefresh();
-            }
-        }
-
-        function clearAllData() {
-            if (confirm('¿ADVERTENCIA! Se borrará todo el historial.')) {
-                deliveredList = [];
-                pendingList = [];
-                saveAndRefresh();
-            }
-        }
-
-        function exportToCSV() {
-            deliveredList = JSON.parse(localStorage.getItem('souvenir_delivered') || '[]');
-            if (deliveredList.length === 0) {
-                alert('No hay registros para exportar.');
-                return;
-            }
-            let csvContent = "\uFEFFCedula,Nombre,Telefono,FechaEntrega\n";
-            deliveredList.forEach(item => {
-                csvContent += `"${item.id}","${item.name}","${item.phone || ''}","${item.date}"\n`;
-            });
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const url = URL.createObjectURL(blob);
+        window.exportToCSV = function() {
+            const delEntries = Object.values(deliveredData);
+            if (delEntries.length === 0) return alert('No hay registros.');
+            let csv = "\uFEFFCedula,Nombre,Telefono,Fecha\n" + delEntries.map(i => `"${i.id}","${i.name}","${i.phone || ''}","${i.date}"`).join("\n");
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement("a");
-            link.setAttribute("href", url);
-            link.setAttribute("download", `entregas_souvenirs_${new Date().toISOString().slice(0,10)}.csv`);
-            document.body.appendChild(link);
+            link.href = URL.createObjectURL(blob);
+            link.download = `entregas_${new Date().toISOString().slice(0,10)}.csv`;
             link.click();
-            document.body.removeChild(link);
-        }
+        };
     </script>
 </body>
 </html>
