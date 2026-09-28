@@ -224,7 +224,9 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getDatabase, ref, onValue, set, remove, push } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-        // CONFIGURACIÓN DE FIREBASE (¡Reemplaza con tus datos de tu consola de Firebase!)
+        // ========================================================
+        // REEMPLAZA ESTE BLOQUE CON TUS CREDENCIALES REALES DE FIREBASE
+        // ========================================================
         const firebaseConfig = {
             apiKey: "TU_API_KEY",
             authDomain: "TU_DOMINIO.firebaseapp.com",
@@ -244,7 +246,6 @@
         let html5QrCode = null;
         let mediaStream = null;
 
-        // Escuchar datos en tiempo real de Firebase
         onValue(ref(db, 'delivered'), (snapshot) => {
             deliveredData = snapshot.val() || {};
             renderTables();
@@ -299,7 +300,6 @@
             const now = new Date();
             const dateStr = now.toLocaleDateString() + ' ' + now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-            // Guardar en entregados en Firebase
             push(ref(db, 'delivered'), {
                 id: idVal,
                 code: idVal,
@@ -309,7 +309,6 @@
                 date: dateStr
             });
 
-            // Remover de pendientes si existía
             Object.keys(pendingData).forEach(key => {
                 if (pendingData[key].id === idVal || pendingData[key].code === idVal) {
                     remove(ref(db, `pending/${key}`));
@@ -346,7 +345,6 @@
         function renderTables() {
             const filterText = (document.getElementById('input-filter')?.value || '').toLowerCase();
             
-            // Render Entregados
             const delEntries = Object.entries(deliveredData).reverse();
             const filteredDel = delEntries.filter(([k, item]) => item.name.toLowerCase().includes(filterText) || item.id.toLowerCase().includes(filterText));
             document.getElementById('count-delivered').textContent = delEntries.length;
@@ -362,7 +360,6 @@
                     </tr>
                 `).join('');
 
-            // Render Pendientes
             const penEntries = Object.entries(pendingData).reverse();
             const filteredPen = penEntries.filter(([k, item]) => item.name.toLowerCase().includes(filterText) || item.id.toLowerCase().includes(filterText));
             document.getElementById('count-pending-list').textContent = penEntries.length;
